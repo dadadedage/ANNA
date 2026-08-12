@@ -10,11 +10,27 @@ $tool = $meta.tool_id
 $version = $meta.version
 $go = (Get-Command go -ErrorAction Stop).Source
 
-$os = if ($env:OS -eq "Windows_NT") { "windows" } elseif ([System.Runtime.InteropServices.RuntimeInformation]::OSDescription -match "Darwin") { "darwin" } else { "linux" }
-$arch = switch ([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()) {
+$os = if ($env:OS -eq "Windows_NT") {
+  "windows"
+} else {
+  switch ((& uname -s).Trim().ToLowerInvariant()) {
+    "darwin" { "darwin" }
+    "linux" { "linux" }
+    default { throw "Unsupported host operating system" }
+  }
+}
+$machine = if ($env:OS -eq "Windows_NT") {
+  [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
+} else {
+  (& uname -m).Trim().ToLowerInvariant()
+}
+$arch = switch ($machine) {
   "x64" { "x86_64" }
+  "amd64" { "x86_64" }
+  "x86_64" { "x86_64" }
   "arm64" { "arm64" }
-  default { throw "Unsupported host architecture" }
+  "aarch64" { "arm64" }
+  default { throw "Unsupported host architecture '$machine'" }
 }
 $hostPlatform = "$os-$arch"
 if (-not $Platform) { $Platform = $hostPlatform }

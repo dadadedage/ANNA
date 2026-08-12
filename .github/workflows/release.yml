@@ -25,6 +25,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+          cache-dependency-path: executa/go.mod
       - name: Package Executa
         shell: pwsh
         run: ./scripts/package-executa.ps1 -Platform '${{ matrix.platform }}'
