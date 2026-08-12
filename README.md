@@ -114,12 +114,23 @@ The local Harness uses legacy in-memory runtime state. Notes are expected to exi
 
 ## Offline sampling test
 
-Test the Tool's actual reverse sampling path without login or an LLM:
+Test the Tool's actual reverse sampling path without login or an LLM. On Windows PowerShell 5, use this command from the repository root:
 
 ```powershell
+.\scripts\test-mock-sampling.cmd
+```
+
+The script passes the JSON argument through `cmd.exe`, avoiding the quote-stripping behavior of Windows PowerShell 5. It also adds the standard Go installation path when present.
+
+In PowerShell 7, the equivalent direct command is:
+
+```powershell
+$PSNativeCommandArgumentPassing = 'Standard'
 $argsJson = '{"notes":[{"id":"note-1","content":"Follow up with the client","order":1}]}'
 npx anna-app executa dev --dir .\executa --mock-sampling .\fixtures\sampling.jsonl --invoke summarize --args $argsJson --json
 ```
+
+The first line is required in PowerShell 7 when its native-command compatibility mode strips JSON quotes. It ensures the CLI receives `$argsJson` as valid JSON instead of `{notes:...}`. Windows PowerShell 5 does not support this setting; use `test-mock-sampling.cmd` instead.
 
 Expected result:
 
