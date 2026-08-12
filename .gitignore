@@ -1,0 +1,6 @@
+node_modules/
+.cache/
+dist-anna/
+bundle/
+Anna-1.1.0-beta.32+staging.fffd71c5-windows-x86_64/
+uv.cmd

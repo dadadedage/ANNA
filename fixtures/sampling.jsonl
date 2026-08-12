@@ -1,0 +1,1 @@
+{"ns":"sampling","method":"createMessage","match":{"contentIncludes":"Summarize these notes concisely"},"result":{"role":"assistant","content":{"type":"text","text":"Follow up with the client, fix the login bug, and turn workshop ideas into an agenda."}}}

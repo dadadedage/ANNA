@@ -1,0 +1,16 @@
+{
+  "name": "anna-mini-notes",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "anna-app dev --no-llm --slug anna-mini-notes --executa \"dir=./executa,tool_id=tool-local-anna-mini-notes,command=go run ./cmd/anna-notes-tool\"",
+    "validate": "anna-app validate --strict"
+  },
+  "devDependencies": {
+    "@anna-ai/cli": "^0.1.46",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}

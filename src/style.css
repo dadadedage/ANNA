@@ -1,0 +1,16 @@
+:root { font-family: Arial, sans-serif; color: #15231d; background: #f5f5ef; }
+body { margin: 0; }
+button, textarea { font: inherit; }
+.notes-shell { max-width: 640px; margin: 0 auto; padding: 28px 20px; }
+h1 { margin: 0 0 24px; font-size: 28px; }
+.eyebrow { margin: 0 0 5px; color: #5d6d4f; font-size: 12px; font-weight: 700; }
+form, #summary { display: grid; gap: 8px; }
+textarea { resize: vertical; padding: 10px; border: 1px solid #9ba798; border-radius: 4px; }
+button { width: fit-content; padding: 8px 12px; border: 1px solid #355c45; border-radius: 4px; background: #355c45; color: white; cursor: pointer; }
+button:disabled { opacity: .55; cursor: default; }
+#status { min-height: 20px; color: #6d2727; }
+ol { padding: 0; list-style: none; }
+li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #d6dbd2; }
+.delete { background: transparent; color: #6d2727; border-color: #9a5c5c; }
+.empty { color: #6c746c; }
+#summary { margin-top: 18px; padding: 12px; min-height: 22px; background: #e8eee4; border-left: 3px solid #355c45; }

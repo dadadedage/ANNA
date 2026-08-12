@@ -1,0 +1,11 @@
+{
+  "name": "tool-local-anna-mini-notes",
+  "display_name": "Anna Mini Notes",
+  "version": "0.1.0",
+  "executa_type": "tool",
+  "description": "Summarize Mini Notes through host sampling.",
+  "tool_id": "tool-local-anna-mini-notes",
+  "type": "go",
+  "enabled": true,
+  "command": ["go", "run", "./cmd/anna-notes-tool"]
+}

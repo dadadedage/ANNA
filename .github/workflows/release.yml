@@ -1,0 +1,54 @@
+name: Executa binaries
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - runner: macos-14
+            platform: darwin-arm64
+          - runner: macos-15-intel
+            platform: darwin-x86_64
+          - runner: windows-latest
+            platform: windows-x86_64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Package Executa
+        shell: pwsh
+        run: ./scripts/package-executa.ps1 -Platform '${{ matrix.platform }}'
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          $binary = Get-ChildItem "dist-anna/staging-${{ matrix.platform }}/bin" | Select-Object -First 1
+          ./scripts/smoke-executa.ps1 -Binary $binary.FullName
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anna-mini-notes-${{ matrix.platform }}
+          path: dist-anna/*-${{ matrix.platform }}.*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          pattern: anna-mini-notes-*
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: release-assets/*
+          generate_release_notes: true
