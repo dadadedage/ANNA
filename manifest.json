@@ -20,6 +20,7 @@
     ],
     "host_api": {
       "storage": ["get", "set"],
+      "llm": ["complete"],
       "tools": ["required:tool-local-anna-mini-notes"]
     }
   }
