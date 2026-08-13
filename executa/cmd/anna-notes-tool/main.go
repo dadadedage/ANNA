@@ -38,7 +38,10 @@ type invokeParams struct {
 	Arguments struct {
 		Notes []note `json:"notes"`
 	} `json:"arguments"`
-	InvokeID string `json:"invoke_id"`
+	InvokeID string `json:"invoke_id"` // Legacy local harness compatibility.
+	Context  struct {
+		InvokeID string `json:"invoke_id"`
+	} `json:"context"`
 }
 
 type note struct {
@@ -89,7 +92,7 @@ func (s *server) handle(message request) {
 	switch message.Method {
 	case "initialize":
 		s.reply(message.ID, map[string]interface{}{
-			"protocolVersion":      "2.0",
+			"protocolVersion":     "2.0",
 			"client_capabilities": map[string]interface{}{"sampling": map[string]interface{}{}},
 			// `capabilities` keeps the current local CLI v0.1.46 compatible.
 			"capabilities": map[string]interface{}{"sampling": map[string]interface{}{}},
@@ -106,12 +109,25 @@ func (s *server) handle(message request) {
 			s.fail(message.ID, -32602, "unknown tool")
 			return
 		}
-		summary, err := s.sample(params.InvokeID, params.Arguments.Notes)
+		invokeID := params.Context.InvokeID
+		if invokeID == "" {
+			invokeID = params.InvokeID
+		}
+		if invokeID == "" {
+			// `anna-app executa dev --mock-sampling` does not add invoke context.
+			// Production hosts always supply it, and it remains in sampling metadata.
+			invokeID = "local-dev"
+		}
+		summary, err := s.sample(invokeID, params.Arguments.Notes)
 		if err != nil {
 			s.fail(message.ID, -32603, err.Error())
 			return
 		}
-		s.reply(message.ID, map[string]string{"summary": summary})
+		s.reply(message.ID, map[string]interface{}{
+			"success": true,
+			"tool":    toolName,
+			"data":    map[string]string{"summary": summary},
+		})
 	case "health":
 		s.reply(message.ID, map[string]bool{"ok": true})
 	case "shutdown":
@@ -137,8 +153,15 @@ func (s *server) sample(invokeID string, notes []note) (string, error) {
 	s.write(request{
 		JSONRPC: "2.0", ID: json.RawMessage(id), Method: "sampling/createMessage",
 		Params: mustJSON(map[string]interface{}{
-			"messages": []map[string]string{{"role": "user", "content": "Summarize these notes concisely:\n" + string(content)}},
-			"metadata": map[string]string{"invoke_id": invokeID},
+			"messages": []map[string]interface{}{{
+				"role":    "user",
+				"content": map[string]string{"type": "text", "text": "Summarize these notes concisely:\n" + string(content)},
+			}},
+			"maxTokens":      400,
+			"systemPrompt":   "You are a concise assistant.",
+			"temperature":    0.3,
+			"includeContext": "none",
+			"metadata":       map[string]string{"executa_invoke_id": invokeID},
 		}),
 	})
 
@@ -195,7 +218,7 @@ func (s *server) write(value interface{}) {
 func manifest() map[string]interface{} {
 	return map[string]interface{}{
 		"name": "tool-local-anna-mini-notes", "display_name": "Anna Mini Notes", "version": "0.1.0",
-		"description": "Summarizes Mini Notes through host LLM sampling.", "host_capabilities": []string{"llm.sample", "llm.complete"}, "runtime": "go",
+		"description": "Summarizes Mini Notes through host LLM sampling.", "host_capabilities": []string{"llm.sample"}, "runtime": "go",
 		"tools": []map[string]interface{}{{"name": toolName, "description": "Summarize notes.", "parameters": []map[string]interface{}{{"name": "notes", "type": "array", "required": true, "description": "Ordered notes to summarize."}}}},
 	}
 }

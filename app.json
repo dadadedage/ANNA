@@ -1,0 +1,9 @@
+{
+  "slug": "anna-mini-notes",
+  "name": "Anna Mini Notes",
+  "version": "0.1.0",
+  "description": "Create, store, and summarize short notes with an Anna App and local Executa Tool.",
+  "bundled_executas": {
+    "mini-notes": { "path": "executa" }
+  }
+}

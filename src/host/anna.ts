@@ -1,8 +1,14 @@
 import type { Note } from "../domain/notes";
 
 const NOTES_KEY = "mini-notes.notes";
-export const TOOL_ID = "tool-local-anna-mini-notes";
+const BUNDLED_TOOL_HANDLE = "mini-notes";
 export const SUMMARIZE_METHOD = "summarize";
+
+declare global {
+  interface Window {
+    __ANNA_TOOL_IDS__?: Record<string, string>;
+  }
+}
 
 type AnnaStorage = {
   get(input: { key: string }): Promise<{ value?: unknown }>;
@@ -44,13 +50,31 @@ export class SummaryGateway {
 
   async summarize(notes: Note[]): Promise<string> {
     const result = await this.anna.tools.invoke({
-      tool_id: TOOL_ID,
+      tool_id: resolveSummaryToolID(),
       method: SUMMARIZE_METHOD,
       args: { notes },
     });
-    if (!result || typeof result !== "object" || typeof (result as { summary?: unknown }).summary !== "string") {
+    const payload = unwrapToolResult(result);
+    if (!payload || typeof payload !== "object" || typeof (payload as { summary?: unknown }).summary !== "string") {
       throw new Error("The summarize tool returned an invalid response.");
     }
-    return (result as { summary: string }).summary;
+    return (payload as { summary: string }).summary;
   }
+}
+
+function unwrapToolResult(result: unknown): unknown {
+  if (!result || typeof result !== "object") return result;
+  const value = result as { summary?: unknown; data?: unknown; result?: unknown };
+  if (typeof value.summary === "string") return value;
+  if (value.data && typeof value.data === "object") return value.data;
+  if (value.result && typeof value.result === "object") return unwrapToolResult(value.result);
+  return result;
+}
+
+function resolveSummaryToolID(): string {
+  const toolID = window.__ANNA_TOOL_IDS__?.[BUNDLED_TOOL_HANDLE];
+  if (!toolID) {
+    throw new Error("Anna did not provide the bundled Mini Notes Tool ID.");
+  }
+  return toolID;
 }

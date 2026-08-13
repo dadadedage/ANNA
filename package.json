@@ -6,6 +6,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "anna-app dev --no-llm --slug anna-mini-notes --executa \"dir=./executa,tool_id=tool-local-anna-mini-notes,command=go run ./cmd/anna-notes-tool\"",
+    "dev:mock": "anna-app dev --mock-llm fixtures/harness-llm.jsonl --slug anna-mini-notes --executa \"dir=./executa,tool_id=tool-local-anna-mini-notes,command=go run ./cmd/anna-notes-tool\"",
+    "dev:aps": "anna-app dev --storage aps --slug anna-mini-notes --executa \"dir=./executa,tool_id=tool-local-anna-mini-notes,command=go run ./cmd/anna-notes-tool\"",
     "validate": "anna-app validate --strict"
   },
   "devDependencies": {

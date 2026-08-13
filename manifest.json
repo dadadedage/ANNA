@@ -3,7 +3,7 @@
   "permissions": ["storage.read", "storage.write", "tools.invoke", "llm.complete"],
   "required_executas": [
     {
-      "tool_id": "tool-local-anna-mini-notes",
+      "tool_id": "bundled:mini-notes",
       "min_version": "0.1.0"
     }
   ],
@@ -21,7 +21,7 @@
     "host_api": {
       "storage": ["get", "set"],
       "llm": ["complete"],
-      "tools": ["required:tool-local-anna-mini-notes"]
+      "tools": ["required:*"]
     }
   }
 }
